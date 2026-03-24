@@ -20,8 +20,8 @@ public class Order
         UnitPrice = unitPrice;
     }
 
-    public void CalculateTotalAndLog()
+    public decimal CalculateTotalAndLog()
     {
-        var total = Quantity * UnitPrice; 
+        return Quantity * UnitPrice; 
     }
 }
