@@ -1,14 +1,14 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
-
-namespace Infrastructure.Data;
-
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Net.NetworkInformation;
+
+namespace Infrastructure.Data;
+
 
 public static class BadDb
 {
@@ -19,31 +19,55 @@ public static class BadDb
         set => _connectionString = value ?? throw new ArgumentException(nameof(value));
     }
 
-    public static int ExecuteNonQueryUnsafe(string sql) => ExecuteNonQueryUnsafe(sql, null);
+    [Obsolete("Unsafe methods removed. Use ExecuteNonQuery/ExecuteQuery/ExecuteScalar with parameters.")]
+    public static int ExecuteNonQueryUnsafe(string sql, params SqlParameter[] _)
+        => throw new InvalidOperationException("Unsafe methods are not allowed.");
 
-    public static int ExecuteNonQueryUnsafe(string sql, IEnumerable<SqlParameter>? parameters = null)
+    [Obsolete("Unsafe methods removed. Use ExecuteNonQuery/ExecuteQuery/ExecuteScalar with parameters.")]
+    public static IDataReader ExecuteReaderUnsafe(string sql, params SqlParameter[] _)
+        => throw new InvalidOperationException("Unsafe methods are not allowed.");
+
+    public static int ExecuteNonQuery(string sql) => ExecuteNonQuery(sql, Array.Empty<SqlParameter>());
+
+    public static int ExecuteNonQuery(string sql, params SqlParameter[] parameters)
     {
-        var conn = new SqlConnection(ConnectionString);
-        var cmd = new SqlCommand(sql, conn);
-        if (parameters is not null) 
+        using var conn = new SqlConnection(ConnectionString);
+        using var cmd = new SqlCommand(sql, conn);
+        if (parameters is not null && parameters.Length > 0)
         {
-            cmd.Parameters.AddRange(new List<SqlParameter>(parameters).ToArray());
+            cmd.Parameters.AddRange(parameters);
         }
         conn.Open();
         return cmd.ExecuteNonQuery();
     }
 
-    public static IDataReader ExecuteReaderUnsafe(string sql) => ExecuteReaderUnsafe(sql, null);
+    public static object? ExecuteScalar(string sql) => ExecuteScalar(sql, Array.Empty<SqlParameter>());
 
-    public static IDataReader ExecuteReaderUnsafe(string sql, IEnumerable<SqlParameter>? parameters = null)
+    public static object? ExecuteScalar(string sql, params SqlParameter[] parameters)
     {
-        var conn = new SqlConnection(ConnectionString);
-        var cmd = new SqlCommand(sql, conn);
-        if (parameters is not null)
+        using var conn = new SqlConnection(ConnectionString);
+        using var cmd = new SqlCommand(sql, conn);
+        if (parameters is not null && parameters.Length > 0)
         {
-            cmd.Parameters.AddRange(new List<SqlParameter>(parameters).ToArray());
+            cmd.Parameters.AddRange(parameters);
         }
         conn.Open();
-        return cmd.ExecuteReader(CommandBehavior.CloseConnection);
+        return cmd.ExecuteScalar();
+    }
+
+    public static DataTable ExecuteQuery(string sql) => ExecuteQuery(sql, Array.Empty<SqlParameter>());
+
+    public static DataTable ExecuteQuery(string sql, params SqlParameter[] parameters)
+    {
+        using var conn = new SqlConnection(ConnectionString);
+        using var cmd = new SqlCommand(sql, conn);
+        if (parameters is not null && parameters.Length > 0)
+        {
+            cmd.Parameters.AddRange(parameters);
+        }
+        using var adapter = new SqlDataAdapter(cmd);
+        var dt = new DataTable();
+        adapter.Fill(dt);
+        return dt;
     }
 }
