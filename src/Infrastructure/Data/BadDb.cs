@@ -19,14 +19,6 @@ public static class BadDb
         set => _connectionString = value ?? throw new ArgumentException(nameof(value));
     }
 
-    [Obsolete("Unsafe methods removed. Use ExecuteNonQuery/ExecuteQuery/ExecuteScalar with parameters.")]
-    public static int ExecuteNonQueryUnsafe(string sql, params SqlParameter[] _)
-        => throw new InvalidOperationException("Unsafe methods are not allowed.");
-
-    [Obsolete("Unsafe methods removed. Use ExecuteNonQuery/ExecuteQuery/ExecuteScalar with parameters.")]
-    public static IDataReader ExecuteReaderUnsafe(string sql, params SqlParameter[] _)
-        => throw new InvalidOperationException("Unsafe methods are not allowed.");
-
     public static int ExecuteNonQuery(string sql) => ExecuteNonQuery(sql, Array.Empty<SqlParameter>());
 
     public static int ExecuteNonQuery(string sql, params SqlParameter[] parameters)
