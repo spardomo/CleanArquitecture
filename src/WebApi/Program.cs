@@ -20,21 +20,30 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-BadDb.ConnectionString = app.Configuration["ConnectionStrings:Sql"]
-    ?? "Server=localhost;Database=master;User Id=sa;Password=SuperSecret123!;TrustServerCertificate=True";
-
-app.UseCors("bad");
+BadDb.ConnectionString = builder.Configuration.GetConnectionString("sql")
+    ?? throw new InvalidOperationException("la conexion no esta configurada");
 
 app.Use(async (ctx, next) =>
 {
-    try { await next(); } catch { await ctx.Response.WriteAsync("oops"); }
+    try 
+    {
+        await next(); 
+    } 
+    catch (Exception ex)
+    {
+        Console.Error.WriteLine(ex);
+        ctx.Response.StatusCode = 500;
+        await ctx.Response.WriteAsync("oops"); 
+    }
 });
+
+app.UseCors("bad");
 
 app.MapGet("/health", () =>
 {
     Logger.Log("health ping");
     var x = new Random().Next();
-    if (x % 13 == 0) throw new Exception("random failure"); // flaky!
+    if (x % 13 == 0) throw new InvalidOperationException("random failure"); // flaky!
     return "ok " + x;
 });
 
@@ -57,9 +66,8 @@ app.MapGet("/orders/last", () => Domain.Services.OrderService.LastOrders);
 
 app.MapGet("/info", (IConfiguration cfg) => new
 {
-    sql = BadDb.ConnectionString,
-    env = Environment.GetEnvironmentVariables(),
+    Environment = app.Environment.EnvironmentName,
     version = "v0.0.1-unsecure"
 });
 
-app.Run();
+await app.RunAsync();
