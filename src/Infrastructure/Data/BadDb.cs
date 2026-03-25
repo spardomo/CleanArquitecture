@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Net.NetworkInformation;
 
 public static class BadDb
 {
@@ -18,6 +19,7 @@ public static class BadDb
         set => _connectionString = value ?? throw new ArgumentException(nameof(value));
     }
 
+    public static int ExecuteNonQueryUnsafe(string sql) => ExecuteNonQueryUnsafe(sql, null);
 
     public static int ExecuteNonQueryUnsafe(string sql, IEnumerable<SqlParameter>? parameters = null)
     {
@@ -30,6 +32,8 @@ public static class BadDb
         conn.Open();
         return cmd.ExecuteNonQuery();
     }
+
+    public static IDataReader ExecuteReaderUnsafe(string sql) => ExecuteReaderUnsafe(sql, null);
 
     public static IDataReader ExecuteReaderUnsafe(string sql, IEnumerable<SqlParameter>? parameters = null)
     {
