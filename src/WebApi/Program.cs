@@ -34,7 +34,7 @@ app.Use(async (ctx, next) =>
     {
         Console.Error.WriteLine(ex);
         ctx.Response.StatusCode = 500;
-        await ctx.Response.WriteAsync("oops"); 
+        await ctx.Response.WriteAsync("oops");
     }
 });
 
@@ -48,15 +48,15 @@ app.MapGet("/health", () =>
     return "ok " + x;
 });
 
-app.MapPost("/orders", (HttpContext http) =>
+app.MapPost("/orders", async (HttpContext http) =>
 {
     using var reader = new StreamReader(http.Request.Body);
-    var body = reader.ReadToEnd();
+    var body = await reader.ReadToEndAsync();
     var parts = (body ?? "").Split(',');
     var customer = parts.Length > 0 ? parts[0] : "anon";
     var product = parts.Length > 1 ? parts[1] : "unknown";
-    var qty = parts.Length > 2 ? int.Parse(parts[2]) : 1;
-    var price = parts.Length > 3 ? decimal.Parse(parts[3]) : 0.99m;
+    var qty = parts.Length > 2 && int.TryParse(parts[2], out var q) ? q : 1;
+    var price = parts.Length > 3 && decimal.TryParse(parts[3], out var p) ? p : 0.99m;
 
     var order = CreateOrderUseCase.Execute(customer, product, qty, price);
 
