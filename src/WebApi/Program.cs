@@ -1,6 +1,7 @@
 using Infrastructure.Data;
 using Infrastructure.Logging;
 using Application.UseCases;
+using System.Security.Cryptography;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,7 +43,7 @@ app.UseCors("bad");
 app.MapGet("/health", () =>
 {
     Logger.Log("health ping");
-    var x = new Random().Next();
+    var x = RandomNumberGenerator.GetInt32(int.MaxValue);
     if (x % 13 == 0) throw new InvalidOperationException("random failure"); // flaky!
     return "ok " + x;
 });
