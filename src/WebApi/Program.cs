@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.ClearProviders();
 
-builder.Services.AddCors(o => o.AddPolicy("bad", p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
+builder.Services.AddCors(o => o.AddPolicy("safe", p => p.WithOrigins("https://localhost:4200").AllowAnyHeader().AllowAnyMethod()));
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -38,7 +38,7 @@ app.Use(async (ctx, next) =>
     }
 });
 
-app.UseCors("bad");
+app.UseCors("safe");
 
 app.MapGet("/health", () =>
 {
