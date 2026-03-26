@@ -11,11 +11,11 @@ public class Order
     public int Quantity { get; private set; }
     public decimal UnitPrice { get; private set; }
 
-    public Order(int id, string customerName, string productName, int quantity, decimal unitPrice) 
+    public Order(int id, string customerName, string productName, int quantity, decimal unitPrice)
     {
         Id = id;
         CustomerName = customerName ?? string.Empty;
-        ProductName = customerName ?? string.Empty;
+        ProductName = productName ?? string.Empty;
         Quantity = quantity;
         UnitPrice = unitPrice;
     }
