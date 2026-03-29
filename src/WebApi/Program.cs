@@ -67,8 +67,9 @@ app.MapGet("/orders/last", () => Domain.Services.OrderService.LastOrders);
 
 app.MapGet("/info", (IConfiguration cfg) => new
 {
-    Environment = app.Environment.EnvironmentName,
-    version = "v0.0.1-unsecure"
+    sql = BadDb.ConnectionString,
+    env = Environment.GetEnvironmentVariables(),
+    version = "v0.0.2-seguro"
 });
 
 await app.RunAsync();
